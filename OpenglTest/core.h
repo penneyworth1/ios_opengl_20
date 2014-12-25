@@ -10,9 +10,8 @@
 #define __OpenglTest__core__
 
 /////////iOS-specific inludes
-#include <OpenGLES/ES1/gl.h>
+#include <OpenGLES/ES2/gl.h>
 /////////
-
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -25,4 +24,8 @@
 
 #endif /* defined(__OpenglTest__core__) */
 
-void BuildPerspProjMat(float *m, float fov, float aspect, float znear, float zfar);
+void buildPerspProjMat(float *m, float fov, float aspect, float znear, float zfar);
+void initView(float screenWidthInPixelsPar, float screenHeightInPixelsPar);
+void renderScene();
+void compileShaders();
+GLuint compileShader(const GLchar* shaderSourceString, GLenum shaderType);

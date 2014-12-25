@@ -12,11 +12,8 @@
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, GLKViewDelegate>
 {
-    GLuint _positionSlot;
-    GLuint _colorSlot;
-    GLuint _projectionUniform;
-    int screenWidthInPixels;
-    int screenHeightInPixels;
+    float screenWidthInPixels;
+    float screenHeightInPixels;
 }
 
 @property (strong, nonatomic) UIWindow *window;
