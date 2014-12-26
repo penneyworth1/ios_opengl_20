@@ -36,7 +36,7 @@
     GLKViewController *controller = [[GLKViewController alloc] init];
     controller.view = view;
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
-    [controller setPreferredFramesPerSecond:55];
+    [controller setPreferredFramesPerSecond:60];
     
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.rootViewController = controller;
@@ -68,7 +68,7 @@
 # pragma mark - GlkView Delegate
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    renderScene();
+    renderScene(CACurrentMediaTime());
 }
 
 
