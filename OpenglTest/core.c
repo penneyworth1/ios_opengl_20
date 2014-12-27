@@ -25,8 +25,8 @@ float lastTimeStamp = 0;
 
 float translationMatrix[16] = {0};
 float angle = 0;
+float rotAxis[3] = {.5,1,.5};
 float quat[4] = {0}; //rotation quaternion
-float qn[4] = {0}; //Normalized rotation quaternion
 float rotationMatrix[16] = {0};
 float xx,yy,zz,xy,xz,yz,wx,wy,wz;
 
@@ -37,16 +37,35 @@ typedef struct
 } Vertex;
 
 const Vertex Vertices[] = {
-    {{1, -1, 0}, {1, 0, 0, 1}},
-    {{1, 1, 0}, {0, 1, 0, 1}},
-    {{-1, 1, 0}, {0, 0, 1, 1}},
-    {{-1, -1, 0}, {0, 0, 0, 1}}
+    {{1, -1, 1}, {1, 0, 0, 1}},
+    {{1, 1, 1}, {0, 1, 0, 1}},
+    {{-1, 1, 1}, {0, 0, 1, 1}},
+    {{-1, -1, 1}, {1, 1, 0, 1}},
+    {{1, -1, -1}, {1, 0, 1, 1}},
+    {{1, 1, -1}, {1, 1, 1, 1}},
+    {{-1, 1, -1}, {0, 1, 1, 1}},
+    {{-1, -1, -1}, {0, 0, 0, 1}}
 };
 
-const GLubyte Indices[] =
-{
+const GLubyte Indices[] = {
+    // Front
     0, 1, 2,
-    2, 3, 0
+    2, 3, 0,
+    // Back
+    4, 6, 5,
+    4, 7, 6,
+    // Left
+    2, 7, 3,
+    7, 6, 2,
+    // Right
+    0, 4, 1,
+    4, 1, 5,
+    // Top
+    6, 2, 1,
+    1, 6, 5,
+    // Bottom
+    0, 3, 7,
+    0, 7, 4
 };
 
 void buildPerspProjMat(float* m, float fov, float aspect, float znear, float zfar)
@@ -76,21 +95,21 @@ void setTranslationMatrix(float* m, float tx, float ty, float tz)
 }
 void setRotationMatrx(float* m, float* q)
 {
-    double norm = sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
-    qn[0] =  q[0] / norm;
-    qn[1] =  q[1] / norm;
-    qn[2] =  q[2] / norm;
-    qn[3] =  q[3] / norm;
+    float norm = sqrtf(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+    q[0] =  q[0] / norm;
+    q[1] =  q[1] / norm;
+    q[2] =  q[2] / norm;
+    q[3] =  q[3] / norm;
     
-    xx = qn[0] * qn[0];
-    yy = qn[1] * qn[1];
-    zz = qn[2] * qn[2];
-    xy = qn[0] * qn[1];
-    xz = qn[0] * qn[2];
-    yz = qn[1] * qn[2];
-    wx = qn[3] * qn[0];
-    wy = qn[3] * qn[1];
-    wz = qn[3] * qn[2];
+    xx = q[0] * q[0];
+    yy = q[1] * q[1];
+    zz = q[2] * q[2];
+    xy = q[0] * q[1];
+    xz = q[0] * q[2];
+    yz = q[1] * q[2];
+    wx = q[3] * q[0];
+    wy = q[3] * q[1];
+    wz = q[3] * q[2];
     
     m[0]  = 1 - 2 * (yy + zz); m[4] =     2 * (xy - wz); m[8]  =     2 * (xz + wy);  m[12] = 0;
     m[1]  =     2 * (xy + wz); m[5] = 1 - 2 * (xx + zz); m[9]  =     2 * (yz - wx);  m[13] = 0;
@@ -199,21 +218,33 @@ void initView(float screenWidthInPixelsPar, float screenHeightInPixelsPar)
     glViewport(0, 0, screenWidthInPixels, screenHeightInPixels);
     
     glClearColor(0, 104.0/255.0, 55.0/255.0, 1.0);
+    glEnable(GL_DEPTH_TEST);
     
-    //Testing
-    quat[0] = 0; quat[1] = 0; quat[2] = 1; quat[3] = 0.00001f;
+    //Normalize rot axis
+    float axisNorm = sqrtf(rotAxis[0]*rotAxis[0] + rotAxis[1]*rotAxis[1] + rotAxis[2]*rotAxis[2]);
+    rotAxis[0] =  rotAxis[0] / axisNorm;
+    rotAxis[1] =  rotAxis[1] / axisNorm;
+    rotAxis[2] =  rotAxis[2] / axisNorm;
+    
 }
 
 void renderScene(double timeStamp)
 {
     timeDiff = timeStamp - lastTimeStamp;
     lastTimeStamp = timeStamp;
+ 
+    float sinHalfAngle = sinf(angle/2);
+    quat[0] = rotAxis[0] * sinHalfAngle;
+    quat[1] = rotAxis[1] * sinHalfAngle;
+    quat[2] = rotAxis[2] * sinHalfAngle;
+    quat[3] = cosf(angle/2);
+    setRotationMatrx(rotationMatrix, quat);
+    angle += 2.0f * timeDiff; if(angle > 2*pi) angle = 0;
     
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     setTranslationMatrix(translationMatrix, 0, 0, -13);// + 4*sin(timeStamp));
     glUniformMatrix4fv(_translationUniform, 1, 0, translationMatrix);
-    setRotationMatrx(rotationMatrix, quat);
     glUniformMatrix4fv(_rotationUniform, 1, 0, rotationMatrix);
     
     glVertexAttribPointer(_positionSlot, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
@@ -221,10 +252,7 @@ void renderScene(double timeStamp)
     
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]), GL_UNSIGNED_BYTE, 0);
     
-    //Testing
-    //quat[3] = (quat[3] + 0.05f); if(quat[3] > 10) quat[3] = -10;
-    angle += 2.0f * timeDiff; if(angle > 4*pi) angle = 0;
-    quat[3] = cosf(angle/2);
+    
 }
 
 
