@@ -19,6 +19,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    lastMillies = CACurrentMediaTime() * 1000;
+    
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     CGFloat screenScale = [[UIScreen mainScreen] scale];
     CGSize screenSize = CGSizeMake(screenBounds.size.width * screenScale, screenBounds.size.height * screenScale);
@@ -41,6 +43,8 @@
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.window.rootViewController = controller;
     [self.window makeKeyAndVisible];
+    
+    
     
     return YES;
 }
@@ -68,7 +72,11 @@
 # pragma mark - GlkView Delegate
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
 {
-    renderScene(CACurrentMediaTime());
+    long currentMillies = CACurrentMediaTime() * 1000;
+    long diff = currentMillies - lastMillies;
+    lastMillies = currentMillies;
+    
+    renderScene(diff);
 }
 
 

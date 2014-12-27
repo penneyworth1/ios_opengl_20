@@ -26,6 +26,6 @@
 
 void buildPerspProjMat(float *m, float fov, float aspect, float znear, float zfar);
 void initView(float screenWidthInPixelsPar, float screenHeightInPixelsPar);
-void renderScene(double timeStamp);
+void renderScene(long timeDiffMillies);
 void compileShaders();
 GLuint compileShader(const GLchar* shaderSourceString, GLenum shaderType);

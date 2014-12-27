@@ -14,6 +14,7 @@
 {
     float screenWidthInPixels;
     float screenHeightInPixels;
+    float lastMillies;
 }
 
 @property (strong, nonatomic) UIWindow *window;
