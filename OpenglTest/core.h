@@ -19,13 +19,12 @@
 #include <string.h>
 #include <math.h>
 #include <unistd.h>
-#include <string.h>
 #include <time.h>
 
 #endif /* defined(__OpenglTest__core__) */
 
 void buildPerspProjMat(float *m, float fov, float aspect, float znear, float zfar);
 void initView(float screenWidthInPixelsPar, float screenHeightInPixelsPar);
-void renderScene(long timeDiffMillies);
+void renderScene(int timeDiffMillies);
 void compileShaders();
 GLuint compileShader(const GLchar* shaderSourceString, GLenum shaderType);
