@@ -75,7 +75,7 @@
     long currentMillies = CACurrentMediaTime() * 1000;
     long diff = currentMillies - lastMillies;
     lastMillies = currentMillies;
-    if(diff > 1000) diff = 1000;
+    if(diff > 100) diff = 100;
     
     renderScene((int)diff);
 }
